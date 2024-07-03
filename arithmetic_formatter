@@ -26,17 +26,12 @@ def format_problem_lines(problem_parts,results):
     operators = [part[1] for part in problem_parts]
     second_operands = [part[2] for part in problem_parts]
 
-    first_operand_length = [len(operand) for operand in first_operands]
-    second_operand_length = [len(operand) for operand in second_operands]
-    most_digits = [max(first_operand_length[i],second_operand_length[i]) for i in range(len(first_operand_length))]
-
+    most_digits = [max(len(first),len(second)) for first, second in zip(first_operands, second_operands)]
     dashes_needed = [2 + digits for digits in most_digits]
 
-    spaces_needed_1 = [second_operand_length[i] + 2 - first_operand_length[i] if second_operand_length[i] >= first_operand_length[i] else 2 for i in range(len(first_operand_length))]
-
-    spaces_needed_2 = [first_operand_length[i] - second_operand_length[i] + 1 if second_operand_length[i] < first_operand_length[i] else 1 for i in range(len(first_operand_length))]
-
-    spaces_needed_3 = [dashes_needed[i] - len(str(results[i])) for i in range(len(first_operand_length))]
+    spaces_needed_1 = [dashes - len(operand) for dashes, operand in zip(dashes_needed, first_operands)]
+    spaces_needed_2 = [dashes - len(operand) -1 for dashes, operand in zip(dashes_needed, second_operands)]
+    spaces_needed_3 = [dashes - len(str(result)) for dashes, result in zip(dashes_needed, results)]
         
     return first_operands, operators, second_operands, dashes_needed, spaces_needed_1, spaces_needed_2, spaces_needed_3
 
