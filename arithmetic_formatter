@@ -1,0 +1,89 @@
+
+def split_problems(problems):
+    return [problem.split() for problem in problems]
+    
+def evaluate_problems(problem_parts):
+    results = []
+
+    for parts in problem_parts:
+        operand1, operator, operand2 = parts
+        operand1 = int(operand1)
+        operand2 = int(operand2)
+        if operator == '+':
+            result = operand1 + operand2
+        elif operator == '-':
+            result = operand1 - operand2
+        results.append(result)
+    return results
+
+def format_problem_lines(problem_parts,results):
+    first_operands = [part[0] for part in problem_parts]
+    operators = [part[1] for part in problem_parts]
+    second_operands = [part[2] for part in problem_parts]
+
+    first_operand_length = [len(operand) for operand in first_operands]
+    second_operand_length = [len(operand) for operand in second_operands]
+    most_digits = [max(first_operand_length[i],second_operand_length[i]) for i in range(len(first_operand_length))]
+
+    dashes_needed = [2 + digits for digits in most_digits]
+    spaces_needed_1 = []
+    spaces_needed_2 = []
+    spaces_needed_3 = []
+
+    for i in range(len(first_operand_length)):
+        if second_operand_length[i] >= first_operand_length[i]:
+            spaces_2 = 1
+            spaces_needed_2.append(spaces_2)
+            spaces_1 = second_operand_length[i] + 2 - first_operand_length[i]
+            spaces_needed_1.append(spaces_1)
+        else:
+            spaces_2 = first_operand_length[i] - second_operand_length[i] + 1
+            spaces_needed_2.append(spaces_2)
+            spaces_1 = 2
+            spaces_needed_1.append(spaces_1)
+        spaces_3 = dashes_needed[i] - len(str(results[i]))
+        spaces_needed_3.append(spaces_3)
+        
+    return first_operands, operators, second_operands, dashes_needed, spaces_needed_1, spaces_needed_2, spaces_needed_3
+
+def arithmetic_arranger(problems, show_answers=False):
+    if len(problems) > 5:
+        return ('Error: Too many problems.')
+
+    for problem in problems:
+        if '+' not in problem and '-' not in problem:
+            return ("Error: Operator must be '+' or '-'.")
+    
+        parts = problem.split()
+    
+        if not parts[0].isdigit() or not parts[2].isdigit(): 
+            return ('Error: Numbers must only contain digits.')
+        for part in parts:
+            if len(part) > 4:
+                return ('Error: Numbers cannot be more than four digits.')
+
+
+    problem_parts = split_problems(problems)
+    results = evaluate_problems(problem_parts)
+    
+    first_operands, operators, second_operands, dashes_needed, spaces_needed_1, spaces_needed_2, spaces_needed_3 = format_problem_lines(problem_parts,results)
+
+    problem_spaces = 4
+
+    line_1 = ""
+    line_2 = ""
+    line_3 = ""
+    line_4 = ""
+    for i in range(len(problems)):
+        line_1 += f"{spaces_needed_1[i] * ' '}{first_operands[i]}{problem_spaces * ' ' if i < len(problems) -1 else ''}"
+        line_2 += f"{operators[i]}{spaces_needed_2[i] * ' '}{second_operands[i]}{problem_spaces * ' ' if i < len(problems) -1 else ''}"
+        line_3 += f"{dashes_needed[i] * '-'}{problem_spaces * ' ' if i < len(problems) -1 else ''}"
+        line_4 += f"{spaces_needed_3[i] * ' '}{results[i]}{problem_spaces * ' ' if i < len(problems) -1 else ''}"
+
+    if  show_answers == True:
+        return f"{line_1}\n{line_2}\n{line_3}\n{line_4}"
+    else:
+        return f"{line_1}\n{line_2}\n{line_3}"
+    
+
+print(f'\n{arithmetic_arranger(["32 - 698", "1 - 3801", "45 + 43", "123 + 49", "988 + 40"], True)}')
