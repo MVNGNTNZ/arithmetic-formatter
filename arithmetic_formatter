@@ -4,11 +4,9 @@ def validate_problems(problems):
         return 'Error: Too many problems.'
 
     for problem in problems:
+        parts = problem.split()
         if '+' not in problem and '-' not in problem:
             return "Error: Operator must be '+' or '-'."
-    
-        parts = problem.split()
-    
         if not parts[0].isdigit() or not parts[2].isdigit(): 
             return 'Error: Numbers must only contain digits.'
         for part in parts:
@@ -21,18 +19,7 @@ def split_problems(problems):
     return [problem.split() for problem in problems]
     
 def evaluate_problems(problem_parts):
-    results = []
-
-    for parts in problem_parts:
-        operand1, operator, operand2 = parts
-        operand1 = int(operand1)
-        operand2 = int(operand2)
-        if operator == '+':
-            result = operand1 + operand2
-        elif operator == '-':
-            result = operand1 - operand2
-        results.append(result)
-    return results
+    return [int(part[0]) + int(part[2]) if part[1] == '+' else int(part[0]) - int(part[2]) for part in problem_parts]
 
 def format_problem_lines(problem_parts,results):
     first_operands = [part[0] for part in problem_parts]
@@ -44,23 +31,12 @@ def format_problem_lines(problem_parts,results):
     most_digits = [max(first_operand_length[i],second_operand_length[i]) for i in range(len(first_operand_length))]
 
     dashes_needed = [2 + digits for digits in most_digits]
-    spaces_needed_1 = []
-    spaces_needed_2 = []
-    spaces_needed_3 = []
 
-    for i in range(len(first_operand_length)):
-        if second_operand_length[i] >= first_operand_length[i]:
-            spaces_2 = 1
-            spaces_needed_2.append(spaces_2)
-            spaces_1 = second_operand_length[i] + 2 - first_operand_length[i]
-            spaces_needed_1.append(spaces_1)
-        else:
-            spaces_2 = first_operand_length[i] - second_operand_length[i] + 1
-            spaces_needed_2.append(spaces_2)
-            spaces_1 = 2
-            spaces_needed_1.append(spaces_1)
-        spaces_3 = dashes_needed[i] - len(str(results[i]))
-        spaces_needed_3.append(spaces_3)
+    spaces_needed_1 = [second_operand_length[i] + 2 - first_operand_length[i] if second_operand_length[i] >= first_operand_length[i] else 2 for i in range(len(first_operand_length))]
+
+    spaces_needed_2 = [first_operand_length[i] - second_operand_length[i] + 1 if second_operand_length[i] < first_operand_length[i] else 1 for i in range(len(first_operand_length))]
+
+    spaces_needed_3 = [dashes_needed[i] - len(str(results[i])) for i in range(len(first_operand_length))]
         
     return first_operands, operators, second_operands, dashes_needed, spaces_needed_1, spaces_needed_2, spaces_needed_3
 
@@ -68,6 +44,7 @@ def arithmetic_arranger(problems, show_answers=False):
     error = validate_problems(problems)
     if error:
         return error
+
     problem_parts = split_problems(problems)
     results = evaluate_problems(problem_parts)
     
