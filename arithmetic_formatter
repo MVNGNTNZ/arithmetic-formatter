@@ -1,4 +1,22 @@
 
+def validate_problems(problems):
+    if len(problems) > 5:
+        return 'Error: Too many problems.'
+
+    for problem in problems:
+        if '+' not in problem and '-' not in problem:
+            return "Error: Operator must be '+' or '-'."
+    
+        parts = problem.split()
+    
+        if not parts[0].isdigit() or not parts[2].isdigit(): 
+            return 'Error: Numbers must only contain digits.'
+        for part in parts:
+            if len(part) > 4:
+                return 'Error: Numbers cannot be more than four digits.'
+    return None
+
+
 def split_problems(problems):
     return [problem.split() for problem in problems]
     
@@ -47,38 +65,18 @@ def format_problem_lines(problem_parts,results):
     return first_operands, operators, second_operands, dashes_needed, spaces_needed_1, spaces_needed_2, spaces_needed_3
 
 def arithmetic_arranger(problems, show_answers=False):
-    if len(problems) > 5:
-        return ('Error: Too many problems.')
-
-    for problem in problems:
-        if '+' not in problem and '-' not in problem:
-            return ("Error: Operator must be '+' or '-'.")
-    
-        parts = problem.split()
-    
-        if not parts[0].isdigit() or not parts[2].isdigit(): 
-            return ('Error: Numbers must only contain digits.')
-        for part in parts:
-            if len(part) > 4:
-                return ('Error: Numbers cannot be more than four digits.')
-
-
+    error = validate_problems(problems)
+    if error:
+        return error
     problem_parts = split_problems(problems)
     results = evaluate_problems(problem_parts)
     
     first_operands, operators, second_operands, dashes_needed, spaces_needed_1, spaces_needed_2, spaces_needed_3 = format_problem_lines(problem_parts,results)
 
-    problem_spaces = 4
-
-    line_1 = ""
-    line_2 = ""
-    line_3 = ""
-    line_4 = ""
-    for i in range(len(problems)):
-        line_1 += f"{spaces_needed_1[i] * ' '}{first_operands[i]}{problem_spaces * ' ' if i < len(problems) -1 else ''}"
-        line_2 += f"{operators[i]}{spaces_needed_2[i] * ' '}{second_operands[i]}{problem_spaces * ' ' if i < len(problems) -1 else ''}"
-        line_3 += f"{dashes_needed[i] * '-'}{problem_spaces * ' ' if i < len(problems) -1 else ''}"
-        line_4 += f"{spaces_needed_3[i] * ' '}{results[i]}{problem_spaces * ' ' if i < len(problems) -1 else ''}"
+    line_1 = "    ".join([f"{spaces_needed_1[i] * ' '}{first_operands[i]}" for i in range(len(problems))])
+    line_2 = "    ".join([f"{operators[i]}{spaces_needed_2[i] * ' '}{second_operands[i]}" for i in range(len(problems))])
+    line_3 = "    ".join([f"{dashes_needed[i] * '-'}"  for i in range(len(problems))])
+    line_4 = "    ".join([f"{spaces_needed_3[i] * ' '}{results[i]}" for i in range(len(problems))])
 
     if  show_answers == True:
         return f"{line_1}\n{line_2}\n{line_3}\n{line_4}"
